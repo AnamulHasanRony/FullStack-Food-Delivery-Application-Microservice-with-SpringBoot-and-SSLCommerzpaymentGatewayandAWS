@@ -1,0 +1,19 @@
+spring:
+  cloud:
+    config:
+      fail-fast: true
+  mongodb:
+    uri: mongodb://localhost:27017/food_delivery_application
+server:
+  port: 8082
+
+
+
+
+aws:
+  secret:
+    key: ${AWS_SECRET_KEY:secretkey}
+  access:
+    key: ${AWS_ACCESS_KEY:access key}
+  region: ${AWS_REGION:us-east-1}
+  bucketname: ${AWS_BUCKETNAME:test-bucket-rony}

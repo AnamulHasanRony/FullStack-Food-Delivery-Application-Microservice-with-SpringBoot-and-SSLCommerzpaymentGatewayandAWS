@@ -1,0 +1,19 @@
+spring:
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/Authentication_Database
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+server:
+  port: 8083
+
+
+jwt:
+  secret:
+    key: ${JWT_SECRET_KEY:498502c0fe7d53807379353f7cb75de227f635981762319b39a2aab6cf92a995}

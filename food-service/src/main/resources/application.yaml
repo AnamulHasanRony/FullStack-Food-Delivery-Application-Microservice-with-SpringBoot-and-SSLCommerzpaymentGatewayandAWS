@@ -1,21 +1,24 @@
 spring:
   application:
     name: food-service
-  mongodb:
-   uri: mongodb://localhost:27017/food_delivery_application
-server:
-  port: 8082
+  config:
+    import: optional:configserver:http://localhost:8081
 
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8762/eureka/
-
-aws:
-  secret:
-    key: ${AWS_SECRET_KEY:secretkey}
-  access:
-    key: ${AWS_ACCESS_KEY:access key}
-  region: ${AWS_REGION:us-east-1}
-  bucketname: ${AWS_BUCKETNAME:test-bucket-rony}
+#spring:
+#  datasource:
+#    url: jdbc:postgresql://localhost:5432/postgres
+#    username: rony
+#    password: rony
+#    driver-class-name: org.postgresql.Driver
+#
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#    show-sql: true
+#    properties:
+#      hibernate:
+#        format_sql: true
+#
+#  sql:
+#    init:
+#      mode: always
