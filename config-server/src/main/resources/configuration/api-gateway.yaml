@@ -1,0 +1,29 @@
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: food-service
+              uri: lb://food-service
+              predicates:
+                - Path=/api/foods/**
+      discovery:
+        locator:
+          lower-case-service-id: true
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: gateway
+
+jwt:
+  secret:
+    key: ${JWT_SECRET_KEY:498502c0fe7d53807379353f7cb75de227f635981762319b39a2aab6cf92a995}
+
+
+logging:
+  level:
+    org.springframework.cloud.gateway: TRACE
