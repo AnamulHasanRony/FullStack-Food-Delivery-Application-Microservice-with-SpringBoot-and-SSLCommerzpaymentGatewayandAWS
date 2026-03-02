@@ -22,13 +22,13 @@ public class JwtGlobalFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
-///  ||
+///
 ///                 path.startsWith("/api/foods/")
         System.out.println("in request---> " + path);
 
         // Skip public paths
-        if (path.startsWith("/api/login") || path.startsWith("/api/register") ||
-                path.startsWith("/api/ping") || path.startsWith("/api/payment/")|| path.startsWith("/api/foods")) {
+        if (path.startsWith("/api/auth") ||
+                path.startsWith("/api/ping") || path.startsWith("/api/payment/") || path.startsWith("/api/foods") ) {
             return chain.filter(exchange);
         }
 
