@@ -1,6 +1,8 @@
 package com.anamul.cart_service.service;
 
+import com.anamul.cart_service.FeingRequestIntercepter.CurrentUser;
 import com.anamul.cart_service.entity.CartEntity;
+import com.anamul.cart_service.feignClient.UserServiceClient;
 import com.anamul.cart_service.io.CartResponse;
 import com.anamul.cart_service.repository.CartRepository;
 import lombok.AllArgsConstructor;
@@ -14,11 +16,12 @@ import java.util.Optional;
 @AllArgsConstructor
 public class CartServiceImplementation implements CartService {
     private final CartRepository cartRepository;
-//    private final UserService userService;
+    private final UserServiceClient userService;
+    private final CurrentUser currentUser;
 
     @Override
     public CartResponse addToCart(String foodId) {
-        String loggedInUserId="1";//userService.findUserId();
+        String loggedInUserId=userService.getUserIdFromEmail(currentUser.getUserEmail());
         Optional<CartEntity> cartEntityOptional=cartRepository.findByUserId(loggedInUserId);
         CartEntity cartEntity=cartEntityOptional.orElseGet(()->new CartEntity(loggedInUserId, new HashMap<>()));
         Map<String, Integer> cartItems= cartEntity.getItems();
@@ -31,7 +34,8 @@ public class CartServiceImplementation implements CartService {
 
     @Override
     public CartResponse getCart() {
-        String loggedInUserId="1"; //userService.findUserId();
+        System.out.println("current user ---> " + currentUser.getUserEmail());
+        String loggedInUserId=userService.getUserIdFromEmail(currentUser.getUserEmail());
         Optional<CartEntity> cartEntityOptional = cartRepository.findByUserId(loggedInUserId);
         CartEntity cartEntity=cartEntityOptional.orElseGet(()->new CartEntity(loggedInUserId, new HashMap<>()));
 
@@ -41,7 +45,7 @@ public class CartServiceImplementation implements CartService {
 
     @Override
     public void clearCart() {
-        String loggedInUserId="1"; //userService.findUserId();
+        String loggedInUserId=userService.getUserIdFromEmail(currentUser.getUserEmail());
         System.out.println("loogggedinUserId for cart removing -> " + loggedInUserId);
         CartEntity cartEntity=cartRepository.findByUserId(loggedInUserId).orElse(new CartEntity(loggedInUserId, new HashMap<>()));;
         cartEntity.setItems(new HashMap<>());
@@ -52,7 +56,8 @@ public class CartServiceImplementation implements CartService {
 
     @Override
     public CartResponse removeFromCart(String foodId) {
-        String loggedInUserId="1"; //userService.findUserId();
+        String loggedInUserId=userService.getUserIdFromEmail(currentUser.getUserEmail());
+        System.out.println("loogggedinUserId for cart removing -> " + loggedInUserId);
         Optional<CartEntity> cartEntityOptional=cartRepository.findByUserId(loggedInUserId);
         CartEntity cartEntity=cartEntityOptional.orElseThrow(()->new RuntimeException("Cart is not found"));
         Map<String, Integer> cartItems= cartEntity.getItems();
@@ -74,7 +79,7 @@ public class CartServiceImplementation implements CartService {
 
     @Override
     public CartResponse deleteFromCart(String foodId) {
-        String loggedInUserId="";//userService.findUserId();
+        String loggedInUserId=userService.getUserIdFromEmail(currentUser.getUserEmail());
         Optional<CartEntity> cartEntityOptional=cartRepository.findByUserId(loggedInUserId);
         CartEntity cartEntity=cartEntityOptional.orElseThrow(()->new RuntimeException("Cart is not found"));
         Map<String, Integer> cartItems= cartEntity.getItems();

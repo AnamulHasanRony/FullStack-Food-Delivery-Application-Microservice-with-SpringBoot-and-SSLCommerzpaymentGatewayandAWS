@@ -22,4 +22,9 @@ public class UserController {
         return userServiceImplementation.registerUser(registerRequest);
 
     }
+
+    @GetMapping("/userid/{email}")
+    public String getUserIdFromEmail(@PathVariable String email){
+        return userServiceImplementation.findUserId(email);
+    }
 }

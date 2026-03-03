@@ -48,11 +48,12 @@ public class JwtGlobalFilter implements GlobalFilter, Ordered {
         String email = jwtUtil.extractUsername(token);
         String role  = jwtUtil.extractRole(token);
 
-        // Forward trusted info to downstream services
         ServerHttpRequest mutated = request.mutate()
                 .header("X-User-Email", email)
                 .header("X-Role", role)
                 .build();
+        System.out.println("X-User-Email" + email);
+        System.out.println("X-Role" + role);
 
         return chain.filter(exchange.mutate().request(mutated).build());
     }

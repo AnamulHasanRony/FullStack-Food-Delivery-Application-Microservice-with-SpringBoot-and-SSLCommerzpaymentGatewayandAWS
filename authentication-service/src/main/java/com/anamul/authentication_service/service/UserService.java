@@ -5,7 +5,7 @@ import com.anamul.authentication_service.io.RegisterResponse;
 
 public interface UserService {
     RegisterResponse registerUser(RegisterRequest registerRequest);
-    String findUserId();
+    String findUserId(String loggedInEmail);
     String findUserEmail();
 
 
