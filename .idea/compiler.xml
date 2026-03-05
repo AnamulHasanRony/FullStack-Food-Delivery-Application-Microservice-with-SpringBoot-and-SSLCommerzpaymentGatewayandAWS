@@ -11,7 +11,7 @@
         <module name="config-server" />
         <module name="service-registry" />
       </profile>
-      <profile name="Annotation profile for cart-service" enabled="true">
+      <profile name="Annotation profile for email-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -20,7 +20,10 @@
         </processorPath>
         <module name="cart-service" />
         <module name="authentication-service" />
+        <module name="payment-service" />
+        <module name="order-service" />
         <module name="food-service" />
+        <module name="email-service" />
       </profile>
     </annotationProcessing>
   </component>
@@ -30,7 +33,10 @@
       <module name="authentication-service" options="-parameters" />
       <module name="cart-service" options="-parameters" />
       <module name="config-server" options="-parameters" />
+      <module name="email-service" options="-parameters" />
       <module name="food-service" options="-parameters" />
+      <module name="order-service" options="-parameters" />
+      <module name="payment-service" options="-parameters" />
       <module name="service-registry" options="-parameters" />
     </option>
   </component>

@@ -1,0 +1,21 @@
+spring:
+  cloud:
+    config:
+      fail-fast: true
+  mongodb:
+    uri: mongodb://localhost:27017/payment_service_database
+server:
+  port: 8086
+
+sslCommerz:
+  store:
+    id: ${SSLCOMMERZ_STORE_ID:mycom696fd1d6c7d22}
+  secret:
+    key: ${SSLCOMMERZ_SECRET_KEY:mycom696fd1d6c7d22@ssl}
+
+frontend:
+  base:
+    url: ${FRONTEND_BASE_URL:http://localhost:5173}
+backend:
+  base:
+    url: ${BACKEND_BASE_URL:http://localhost:8080}

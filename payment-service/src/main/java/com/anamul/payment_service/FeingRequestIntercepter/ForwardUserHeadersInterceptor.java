@@ -1,4 +1,4 @@
-package com.anamul.cart_service.FeingRequestIntercepter;
+package com.anamul.payment_service.FeingRequestIntercepter;
 
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
@@ -23,7 +23,6 @@ public class ForwardUserHeadersInterceptor implements RequestInterceptor {
         if (email != null) template.header("X-User-Email", email);
 
         String role = request.getHeader("X-Role");
-        System.out.println("email-> " + email + " role" + role);
         if (role != null) template.header("X-Role", role);
     }
 }

@@ -18,6 +18,16 @@ spring:
               uri: lb://cart-service
               predicates:
                 - Path=/api/cart/**
+
+            - id: order-service
+              uri: lb://order-service
+              predicates:
+                - Path=/api/order/**
+
+            - id: payment-service
+              uri: lb://payment-service
+              predicates:
+                - Path=/api/payment/**
       discovery:
         locator:
           lower-case-service-id: true
