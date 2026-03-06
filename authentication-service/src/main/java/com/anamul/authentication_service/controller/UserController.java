@@ -6,6 +6,7 @@ import com.anamul.authentication_service.service.UserServiceImplementation;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+
 @RestController
 @RequestMapping("/api/auth")
 public class UserController {
@@ -19,6 +20,9 @@ public class UserController {
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public RegisterResponse register(@RequestBody RegisterRequest registerRequest){
+        System.out.println(registerRequest.getEmail());
+        System.out.println(registerRequest.getPassword());
+        System.out.println(registerRequest.getName());
         return userServiceImplementation.registerUser(registerRequest);
 
     }

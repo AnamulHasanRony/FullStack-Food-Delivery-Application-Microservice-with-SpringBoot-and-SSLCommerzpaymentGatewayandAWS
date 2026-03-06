@@ -5,7 +5,7 @@ eureka:
 
   instance:
     prefer-ip-address: true
-spring:
-  cloud:
-    config:
-      override.system-properties: false
+#spring:
+#  cloud:
+#    config:
+#      override.system-properties: false

@@ -3,18 +3,15 @@ package com.anamul.payment_service.feignClient;
 import com.anamul.payment_service.io.OrderResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 @FeignClient(name = "order-service")
 public interface OrderServiceClient {
-    @PatchMapping("/updatePaymentStatus")
+    @PutMapping("/api/order/updatePaymentStatus")
     public ResponseEntity<String> updatePaymentStatus(
             @RequestParam String tranId,
             @RequestParam String status);
 
-    @GetMapping("/{orderId}")
+    @GetMapping("/api/order/{orderId}")
     public OrderResponse getOrderById(@PathVariable String orderId);
 }

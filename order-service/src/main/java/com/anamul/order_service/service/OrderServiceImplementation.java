@@ -43,6 +43,12 @@ public class OrderServiceImplementation implements OrderService {
     public void updatePaymentStatus(String orderId, String paid) {
         OrderEntity orderEntity=orderRepository.findById(orderId).orElseThrow(()-> new RuntimeException("order is not found"));
         orderEntity.setPaymentStatus(paid);
+        if(orderEntity.getPaymentStatus().startsWith("PAID")){
+            orderEntity.setOrderStatus("PENDING");
+        }
+        else{
+            orderEntity.setOrderStatus("CANCEL");
+        }
         orderRepository.save(orderEntity);
 
     }

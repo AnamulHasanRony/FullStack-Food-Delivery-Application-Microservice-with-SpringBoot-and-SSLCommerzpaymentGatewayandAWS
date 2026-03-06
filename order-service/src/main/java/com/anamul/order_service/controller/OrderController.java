@@ -77,7 +77,8 @@ public class OrderController {
         }).toList();
 
         orderRequest.setOrderedItem(orderItems);
-        orderRequest.setPaymentStatus("pending");
+        orderRequest.setPaymentStatus("FAILED");
+        orderRequest.setOrderStatus("FAILED");
         double subTotal = orderItems.stream().mapToDouble(i -> i.getPrice() * i.getQuantity()).sum();
         double totalAmount=subTotal+subTotal*0.1+50.0;
         orderRequest.setTotalAmount(totalAmount);
@@ -86,7 +87,7 @@ public class OrderController {
         return orderRequest;
     }
 
-    @PatchMapping("/updatePaymentStatus")
+    @PutMapping("/updatePaymentStatus")
     public ResponseEntity<String> updatePaymentStatus(
             @RequestParam String tranId,
             @RequestParam String status) {

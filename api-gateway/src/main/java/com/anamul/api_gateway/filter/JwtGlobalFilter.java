@@ -11,6 +11,8 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import org.springframework.http.HttpMethod;
+
 
 @Component
 public class JwtGlobalFilter implements GlobalFilter, Ordered {
@@ -20,7 +22,30 @@ public class JwtGlobalFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+
+
+        // Add CORS headers to all responses
+//        exchange.getResponse().getHeaders().add("Access-Control-Allow-Origin", "http://localhost:5173");
+//        exchange.getResponse().getHeaders().add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS,PATCH");
+//        exchange.getResponse().getHeaders().add("Access-Control-Allow-Headers", "Authorization,Content-Type,X-User-Email,X-Role");
+//        exchange.getResponse().getHeaders().add("Access-Control-Allow-Credentials", "true");
+//        exchange.getResponse().getHeaders().add("Access-Control-Max-Age", "3600");
+//
+//        ServerHttpRequest request = exchange.getRequest();
+//        String path = request.getURI().getPath();
+//
+//        if (request.getMethod() == HttpMethod.OPTIONS) {
+//            exchange.getResponse().setStatusCode(HttpStatus.OK);
+//            return exchange.getResponse().setComplete();
+//        }
+
         ServerHttpRequest request = exchange.getRequest();
+
+        if (request.getMethod() == HttpMethod.OPTIONS) {
+            return chain.filter(exchange);
+        }
+
+
         String path = request.getURI().getPath();
 ///
 ///                 path.startsWith("/api/foods/")
@@ -28,7 +53,7 @@ public class JwtGlobalFilter implements GlobalFilter, Ordered {
 
         // Skip public paths
         if (path.startsWith("/api/auth") ||
-                path.startsWith("/api/ping") || path.startsWith("/api/payment/") || path.startsWith("/api/foods") ) {
+                path.startsWith("/api/contactUs") || path.startsWith("/api/payment/") || path.startsWith("/api/foods") ) {
             return chain.filter(exchange);
         }
 

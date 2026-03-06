@@ -29,19 +29,19 @@ public class EmailSendService {
 
         for (OrderItem item : order.getOrderedItem()) {
 
-            body.append("- ")
+            body.append("<p>")
                     .append(item.getName())
                     .append(" | Qty: ")
                     .append(item.getQuantity())
                     .append(" | Price: Tk. ")
                     .append(item.getPrice()*item.getQuantity())
-                    .append("\n");
+                    .append("</p>");
         }
         body.append("<ul>");
         body.append("<li><b>Order ID:</b> ").append(order.getId()).append("</li>");
         body.append("<li><b>Total Amount:</b> Tk. ").append(order.getTotalAmount()).append("</li>");
         body.append("<li><b>Payment Status:</b> ").append(order.getPaymentStatus()).append("</li>");
-        body.append("<li><b>Order Status:</b> ").append(order.getOrderStatus()).append("</li>");
+        body.append("<li><b>Order Status: Pending</b> ").append("</li>");
         body.append("</ul>");
 
         body.append("<h4>Feed Delivery Address Information:</h4>");
