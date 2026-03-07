@@ -41,6 +41,7 @@ public class FoodController {
 
     @GetMapping
     public List<FoodResponse> getAllFoods(){
+        System.out.println("retrying to get food --> ");
         return foodServiceImplementation.getAllFoods();
     }
 

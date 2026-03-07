@@ -97,6 +97,7 @@ public class OrderServiceImplementation implements OrderService {
                 .orderedItem(orderEntity.getOrderedItem())
                 .userId(orderEntity.getUserId())
                 .totalAmount(orderEntity.getTotalAmount())
+                .customerEmail(orderEntity.getCustomerEmail())
                 .build();
     }
 
@@ -114,6 +115,7 @@ public class OrderServiceImplementation implements OrderService {
                 .totalAmount( orderRequest.getTotalAmount())
                 .paymentStatus(orderRequest.getPaymentStatus())
                 .customerAddress(orderRequest.getCustomerAddress())
+                .customerEmail(orderRequest.getCustomerEmail())
                 .build();
     }
 }

@@ -19,7 +19,7 @@ public class EmailSendService {
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
 
-        helper.setTo("anamul31@gmail.com");
+        helper.setTo(order.getCustomerEmail());
         helper.setSubject("Food Order Payment Confirmation - Order #" + order.getId());
 
         StringBuilder body = new StringBuilder();
@@ -61,7 +61,7 @@ public class EmailSendService {
         helper.setText(body.toString(), true);
 
         mailSender.send(message);
-        System.out.println("Payment confirmation email sent to " + "anamul31@gmail.com");
+        System.out.println("Payment confirmation email sent to " + order.getCustomerEmail());
 
 
 

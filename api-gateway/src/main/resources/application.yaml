@@ -10,6 +10,8 @@ spring:
 
 
 
+
 #jwt:
 #  secret:
 #    key: ${JWT_SECRET_KEY:498502c0fe7d53807379353f7cb75de227f635981762319b39a2aab6cf92a995}
+

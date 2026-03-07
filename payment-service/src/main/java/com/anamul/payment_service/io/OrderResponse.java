@@ -25,6 +25,7 @@ public class OrderResponse {
     private String customerState;
     private  String orderStatus;
     private double totalAmount;
+    private String customerEmail;
 
 
 }

@@ -1,49 +1,30 @@
 spring:
   cloud:
     gateway:
-
-#      globalcors:
-#        add-to-simple-url-handler-mapping: true   # ← important for OPTIONS
-#        corsConfigurations:
-#          '[/**]':
-#            allowedOrigins:
-#              - "http://localhost:5173"
-#            allowedMethods:
-#              - GET
-#              - POST
-#              - PUT
-#              - DELETE
-#              - PATCH
-#              - OPTIONS
-#            allowedHeaders: "*"
-#            exposedHeaders:
-#              - Authorization
-#              - Content-Type
-#              - X-User-Email
-#              - X-Role
-#            allowCredentials: true
-#            maxAge: 3600
-
       server:
         webflux:
           routes:
-#            - id: preflight-handler
-#              uri: no://op   # dummy URI — not used
-#              order: -1000   # highest priority — runs first
-#              predicates:
-#                - Method=OPTIONS
-#              filters:
-#                - AddResponseHeader=Access-Control-Allow-Origin, http://localhost:5173
-#                - AddResponseHeader=Access-Control-Allow-Methods, "GET,POST,PUT,DELETE,PATCH,OPTIONS"
-#                - AddResponseHeader=Access-Control-Allow-Headers, "*"
-#                - AddResponseHeader=Access-Control-Allow-Credentials, true
-#                - AddResponseHeader=Access-Control-Max-Age, 3600
-#                - RewritePath=/.+, /dummy   # dummy rewrite (not needed)
-
             - id: food-service
               uri: lb://food-service
               predicates:
                 - Path=/api/foods/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: foodServiceCircuit
+                    fallbackUri: forward:/fallback/foodService
+
+                - name: Retry
+                  args:
+                    retries: 3
+                    statuses:
+                      - BAD_GATEWAY
+                      - INTERNAL_SERVER_ERROR
+                    methods: GET
+                    backoff:
+                      firstBackoff: 500ms
+                      maxBackoff: 2s
+                      factor: 2
 
             - id: authentication-service
               uri: lb://authentication-service
@@ -73,13 +54,19 @@ spring:
           lower-case-service-id: true
 
 
-
+resilience4j:
+  circuitbreaker:
+    instances:
+      foodServiceCircuit:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
 
 management:
   endpoints:
     web:
       exposure:
-        include: gateway
+        include: "*"
 
 jwt:
   secret:
