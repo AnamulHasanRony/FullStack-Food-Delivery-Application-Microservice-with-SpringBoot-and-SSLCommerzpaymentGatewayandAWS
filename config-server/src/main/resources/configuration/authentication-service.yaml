@@ -5,9 +5,9 @@ spring:
       ddl-auto: update
 
   datasource:
-    url: jdbc:mysql://localhost:3306/Authentication_Database
-    username: root
-    password: root
+    url: ${MYSQL_URL:jdbc:mysql://localhost:3306/Authentication_Database}
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:root}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 server:

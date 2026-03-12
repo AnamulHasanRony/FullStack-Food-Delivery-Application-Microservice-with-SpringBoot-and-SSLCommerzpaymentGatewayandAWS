@@ -2,4 +2,12 @@ spring:
   application:
     name: authentication-service
   config:
-    import: optional:configserver:http://localhost:8081
+    import: optional:configserver:${CONFIG_SERVER:http://localhost:8081}
+  cloud:
+    config:
+      fail-fast: true
+      retry:
+        max-attempts: 30
+        initial-interval: 1000
+        multiplier: 1.2
+        max-interval: 5000

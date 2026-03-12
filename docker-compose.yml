@@ -1,70 +1,469 @@
+#
+#services:
+#
+#  postgres:
+#    container_name: foodapp_pg_sql
+#    image: postgres
+#    environment:
+#      POSTGRES_USER: rony
+#      POSTGRES_PASSWORD: rony
+#      PGDATA: /var/lib/postgresql/data
+#    volumes:
+#      - postgres:/var/lib/postgresql/data
+#    ports:
+#      - "5432:5432"
+#    networks:
+#      - microservices-net
+#    restart: unless-stopped
+#
+#  pgadmin:
+#    container_name: foodapp_pgadmin
+#    image: dpage/pgadmin4
+#    environment:
+#      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin@pgadmin.org}
+#      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+#      PGADMIN_CONFIG_SERVER_MODE: 'False'
+#    volumes:
+#      - pgadmin:/var/lib/pgadmin
+#    ports:
+#      - "5050:80"
+#    networks:
+#      - microservices-net
+#    restart: unless-stopped
+#
+#  mail-dev:
+#    container_name: foodapp_mail_dev
+#    image: maildev/maildev
+#    ports:
+#      - "1080:1080"
+#      - "1025:1025"
+#    networks:
+#      - microservices-net
+#    restart: unless-stopped
+#  zookeeper:
+#    image: confluentinc/cp-zookeeper:7.5.0
+#    container_name: zookeeper
+#    ports:
+#      - "2181:2181"
+#    environment:
+#      ZOOKEEPER_CLIENT_PORT: 2181
+#      ZOOKEEPER_TICK_TIME: 2000
+#
+#  kafka:
+#    image: confluentinc/cp-kafka:7.5.0
+#    container_name: kafka
+#    ports:
+#      - "9092:9092"
+#    depends_on:
+#      - zookeeper
+#    environment:
+#      KAFKA_BROKER_ID: 1
+#      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+#      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+#      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+#networks:
+#  microservices-net:
+#    driver: bridge
+#
+#volumes:
+#  postgres:
+#  pgadmin:
+
+
+version: "3.8"
 
 services:
 
-  postgres:
-    container_name: foodapp_pg_sql
-    image: postgres
-    environment:
-      POSTGRES_USER: rony
-      POSTGRES_PASSWORD: rony
-      PGDATA: /var/lib/postgresql/data
-    volumes:
-      - postgres:/var/lib/postgresql/data
+  # ---------------- DATABASES ----------------
+  mongo:
+    image: mongo:7
+    container_name: foodapp_mongo
     ports:
-      - "5432:5432"
+      - "27017:27017"
     networks:
       - microservices-net
-    restart: unless-stopped
-
-  pgadmin:
-    container_name: foodapp_pgadmin
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin@pgadmin.org}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
     volumes:
-      - pgadmin:/var/lib/pgadmin
+      - mongo-data:/data/db
+    healthcheck:
+      test: [ "CMD", "mongo", "--eval", "db.adminCommand('ping')" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+
+  mysql:
+    image: mysql:8
+    container_name: foodapp_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
     ports:
-      - "5050:80"
+      - "3307:3306"
     networks:
       - microservices-net
-    restart: unless-stopped
+    volumes:
+      - mysql-data:/var/lib/mysql
 
-  mail-dev:
-    container_name: foodapp_mail_dev
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ---------------- MAIL ----------------
+  maildev:
     image: maildev/maildev
+    container_name: foodapp_maildev
     ports:
       - "1080:1080"
       - "1025:1025"
     networks:
       - microservices-net
-    restart: unless-stopped
+
+  # ---------------- KAFKA ----------------
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
-    container_name: zookeeper
-    ports:
-      - "2181:2181"
+    container_name: foodapp_zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - microservices-net
+
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "2181" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   kafka:
     image: confluentinc/cp-kafka:7.5.0
-    container_name: kafka
-    ports:
-      - "9092:9092"
+    container_name: foodapp_kafka
     depends_on:
       - zookeeper
+    ports:
+      - "9092:9092"
+    networks:
+      - microservices-net
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "9092" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+
+  # ---------------- MICROSERVICE INFRA ----------------
+  service-registry:
+    build:
+      context: ./service-registry
+      dockerfile: Dockerfile
+    image: mdanamulhasanrony/food-delivery-app-microservice-service-registry:latest
+    container_name: service-registry
+    ports:
+      - "8761:8761"
+    depends_on:
+      - config-server
+    networks:
+      - microservices-net
+    environment:
+      CONFIG_SERVER: http://config-server:8081
+
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+          cpus: "0.50"
+        reservations:
+          memory: 256m
+
+  config-server:
+    build:
+      context: ./config-server
+      dockerfile: Dockerfile
+    image: mdanamulhasanrony/food-delivery-app-microservice-config-server:latest
+    container_name: config-server
+    ports:
+      - "8081:8081"
+    networks:
+      - microservices-net
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "8081" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    image: mdanamulhasanrony/food-delivery-app-microservice-api-gateway:latest
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - config-server
+      - service-registry
+    networks:
+      - microservices-net
+    environment:
+      CONFIG_SERVER: http://config-server:8081
+      EUREKA_SERVER: http://service-registry:8761/eureka/
+
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "8080" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+          cpus: "0.20"
+        reservations:
+          memory: 256m
+
+  # ---------------- BUSINESS MICROSERVICES ----------------
+  authentication-service:
+    build:
+      context: ./authentication-service
+      dockerfile: Dockerfile
+    image: mdanamulhasanrony/food-delivery-app-microservice-auth-service:latest
+    container_name: authentication-service
+    depends_on:
+      - mysql
+      - config-server
+      - service-registry
+    networks:
+      - microservices-net
+    environment:
+      CONFIG_SERVER: http://config-server:8081
+      EUREKA_SERVER: http://service-registry:8761/eureka/
+      MYSQL_URL: jdbc:mysql://mysql:3306/Authentication_Database
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      PORT: 8083
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/Authentication_Database
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "8083" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+          cpus: "0.20"
+        reservations:
+          memory: 256m
+
+  food-service:
+    build:
+      context: ./food-service
+      dockerfile: Dockerfile
+    image: mdanamulhasanrony/food-delivery-app-microservice-food-service:latest
+    container_name: food-service
+    depends_on:
+      - mongo
+      - config-server
+      - service-registry
+    networks:
+      - microservices-net
+    environment:
+      CONFIG_SERVER: http://config-server:8081
+      MONGO_URI: mongodb://mongo:27017/food_service_database
+      PORT: 8082
+      EUREKA_SERVER: http://service-registry:8761/eureka/
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "8082" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+          cpus: "0.20"
+        reservations:
+          memory: 256m
+
+  cart-service:
+    build:
+      context: ./cart-service
+      dockerfile: Dockerfile
+    image: mdanamulhasanrony/food-delivery-app-microservice-cart-service:latest
+    container_name: cart-service
+    depends_on:
+      - mongo
+      - config-server
+      - service-registry
+    networks:
+      - microservices-net
+    environment:
+      CONFIG_SERVER: http://config-server:8081
+      MONGO_URI: mongodb://mongo:27017/cart_service_database
+      PORT: 8084
+      EUREKA_SERVER: http://service-registry:8761/eureka/
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "8084" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+          cpus: "0.20"
+        reservations:
+          memory: 256m
+
+  contact-service:
+    build:
+      context: ./contact-service
+      dockerfile: Dockerfile
+    image: mdanamulhasanrony/food-delivery-app-microservice-contact-service:latest
+    container_name: contact-service
+    depends_on:
+      - mongo
+      - config-server
+      - service-registry
+    networks:
+      - microservices-net
+    environment:
+      CONFIG_SERVER: http://config-server:8081
+      MONGO_URI: mongodb://mongo:27017/contact_service_database
+      PORT: 8089
+      EUREKA_SERVER: http://service-registry:8761/eureka/
+
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "8089" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+          cpus: "0.20"
+        reservations:
+          memory: 256m
+
+
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    image: mdanamulhasanrony/food-delivery-app-microservice-order-service:latest
+    container_name: order-service
+    depends_on:
+      - mongo
+      - config-server
+      - service-registry
+    networks:
+      - microservices-net
+    environment:
+      CONFIG_SERVER: http://config-server:8081
+      MONGO_URI: mongodb://mongo:27017/order_service_database
+      PORT: 8085
+      EUREKA_SERVER: http://service-registry:8761/eureka/
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "8085" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+          cpus: "0.20"
+        reservations:
+          memory: 256m
+
+
+  payment-service:
+    build:
+      context: ./payment-service
+      dockerfile: Dockerfile
+    image: mdanamulhasanrony/food-delivery-app-microservice-payment-service:latest
+    container_name: payment-service
+    depends_on:
+      - mongo
+      - kafka
+      - config-server
+      - service-registry
+    networks:
+      - microservices-net
+    environment:
+      CONFIG_SERVER: http://config-server:8081
+      MONGO_URI: mongodb://mongo:27017/payment_service_database
+      KAFKA_BOOTSTRAP: kafka:9092
+      PORT: 8086
+      EUREKA_SERVER: http://service-registry:8761/eureka/
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "8086" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+          cpus: "0.20"
+        reservations:
+          memory: 256m
+
+
+  email-service:
+    build:
+      context: ./email-service
+      dockerfile: Dockerfile
+    image: mdanamulhasanrony/food-delivery-app-microservice-email-service:latest
+    container_name: email-service
+    depends_on:
+      - kafka
+      - maildev
+      - config-server
+      - service-registry
+    networks:
+      - microservices-net
+    environment:
+      CONFIG_SERVER: http://config-server:8081
+      KAFKA_BOOTSTRAP: kafka:9092
+      MAIL_HOST: maildev
+      MAIL_PORT: 1025
+      PORT: 8087
+      EUREKA_SERVER: http://service-registry:8761/eureka/
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "8087" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+          cpus: "0.20"
+        reservations:
+          memory: 256m
+
+
 networks:
   microservices-net:
     driver: bridge
 
 volumes:
-  postgres:
-  pgadmin:
+  mongo-data:
+  mysql-data:

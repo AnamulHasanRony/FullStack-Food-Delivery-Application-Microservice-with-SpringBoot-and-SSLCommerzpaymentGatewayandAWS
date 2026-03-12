@@ -6,7 +6,7 @@ spring:
       okhttp:
         enabled: true
   mongodb:
-    uri: mongodb://localhost:27017/payment_service_database
+    uri: ${MONGO_URI:mongodb://localhost:27017/payment_service_database}
 server:
   port: 8086
 

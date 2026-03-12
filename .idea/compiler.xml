@@ -11,7 +11,7 @@
         <module name="config-server" />
         <module name="service-registry" />
       </profile>
-      <profile name="Annotation profile for payment-service" enabled="true">
+      <profile name="Annotation profile for foodapp-microservice" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -19,12 +19,12 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
         </processorPath>
         <module name="contact-service" />
-        <module name="cart-service" />
         <module name="authentication-service" />
+        <module name="cart-service" />
         <module name="payment-service" />
         <module name="email-service" />
-        <module name="order-service" />
         <module name="food-service" />
+        <module name="order-service" />
       </profile>
     </annotationProcessing>
   </component>

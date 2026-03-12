@@ -3,7 +3,7 @@ spring:
     config:
       fail-fast: true
   mongodb:
-    uri: mongodb://localhost:27017/cart_service_database
+    uri: ${MONGO_URI:mongodb://localhost:27017/cart_service_database}
 server:
   port: 8084
 
