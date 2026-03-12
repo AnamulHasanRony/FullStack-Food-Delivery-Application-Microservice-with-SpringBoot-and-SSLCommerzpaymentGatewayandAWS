@@ -1,0 +1,6 @@
+.login-background-div {
+  background-image: url('../../assets/restaurantImage1.jpg');
+  height: 100vh;
+  background-size: cover;
+  background-repeat: no-repeat;
+}

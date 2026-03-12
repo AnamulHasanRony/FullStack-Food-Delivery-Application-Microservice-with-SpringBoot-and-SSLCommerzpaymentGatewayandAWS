@@ -1,0 +1,28 @@
+.brand-title {
+    /* Font styles */
+    font-family: 'Helvetica Neue', Arial, sans-serif; /* Use a web-safe or Google Font */
+    font-size: 3rem; /* Adjust size as needed */
+    font-weight: 700; /* Bolder font weight */
+    color: #333; /* Brand primary color */
+    text-transform: uppercase; /* All caps for a strong brand presence */
+    letter-spacing: 2px; /* Spacing between letters */
+
+    /* Spacing and layout */
+    margin: 0; /* Remove default H1 margin */
+    padding: 10px 0;
+    display: inline-block; /* Helps with layout and vertical alignment if a logo is present */
+
+    /* Special effects */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.brand-title.gradient-text {
+    background-image: linear-gradient(to right, #ff7e5f, #feb47b);
+    color: transparent; /* Makes the text itself invisible */
+    -webkit-background-clip: text; /* Clips the background to the shape of the text (for WebKit browsers) */
+    background-clip: text; /* Clips the background to the shape of the text */
+}
+
+.dropdown-menu li{
+    cursor: pointer;
+}

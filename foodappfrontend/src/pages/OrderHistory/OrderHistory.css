@@ -1,0 +1,5 @@
+.table-bordered th,
+.table-bordered td {
+  border-width: 2px !important; /* default is 1px */
+  border-color: #6c757d !important; /* optional: make the color darker */
+}

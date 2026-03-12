@@ -1,0 +1,19 @@
+.header{
+    padding: 5rem;
+    margin-bottom: 1rem;
+    border-radius: 0.3rem;
+    margin-top: 0.25rem;
+    color: white;
+    background-image: url("../../assets/header7.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+ /* .header {
+    background-image: url("../../assets/header10.jpg");
+    background-size: contain; 
+    background-position: center;
+    background-repeat: repeat;
+    background-color: #000;     
+}  */
